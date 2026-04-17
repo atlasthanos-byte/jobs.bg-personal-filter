@@ -186,6 +186,19 @@
 
   .clear-btn:hover { color: var(--text); border-color: var(--muted); }
 
+  .priority-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--muted);
+    margin-right: auto;
+  }
+
+  .priority-toggle input[type="checkbox"] {
+    margin: 0;
+  }
+
   .apply-btn {
     background: var(--accent);
     border: none;
@@ -250,6 +263,10 @@
 <div class="hint">Filters match card titles. Both can be active at once.<br>Positive filter = whitelist (only matching show). Negative = blacklist (matching hide).</div>
 
 <div class="footer">
+  <div class="priority-toggle">
+    <input type="checkbox" id="prioritize-positive">
+    <label for="prioritize-positive">Prioritize Positive</label>
+  </div>
   <button class="clear-btn" id="clear-all">CLEAR ALL</button>
 </div>
 
