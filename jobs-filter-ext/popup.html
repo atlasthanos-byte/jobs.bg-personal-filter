@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jobs.bg Filter</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --surface: #f0f0f0;
+    --border: #cccccc;
+    --neg: #ff3b5c;
+    --neg-dim: rgba(255,59,92,0.12);
+    --pos: #00e5a0;
+    --pos-dim: rgba(0,229,160,0.12);
+    --text: #000000;
+    --muted: #666666;
+    --accent: #4e7bff;
+  }
+
+  body {
+    width: 340px;
+    min-height: 200px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+
+  .logo span { color: var(--accent); }
+
+  .stats {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .stats .s-shown { color: var(--pos); }
+  .stats .s-hidden { color: var(--neg); }
+
+  .section {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .section-label.neg { color: var(--neg); }
+  .section-label.pos { color: var(--pos); }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.neg { background: var(--neg); }
+  .dot.pos { background: var(--pos); }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-height: 24px;
+    margin-bottom: 8px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: default;
+  }
+
+  .tag.neg {
+    background: var(--neg-dim);
+    border: 1px solid rgba(255,59,92,0.3);
+    color: var(--neg);
+  }
+
+  .tag.pos {
+    background: var(--pos-dim);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--pos);
+  }
+
+  .tag .remove {
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 13px;
+    line-height: 1;
+    transition: opacity 0.15s;
+  }
+
+  .tag .remove:hover { opacity: 1; }
+
+  .input-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input[type="text"]:focus { border-color: var(--muted); }
+
+  .add-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: 0.05em;
+  }
+
+  .add-btn:hover { opacity: 0.8; }
+
+  .add-btn.neg { background: var(--neg); color: #fff; }
+  .add-btn.pos { background: var(--pos); color: #000; }
+
+  .footer {
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .clear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .clear-btn:hover { color: var(--text); border-color: var(--muted); }
+
+  .apply-btn {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .apply-btn:hover { opacity: 0.85; }
+
+  .hint {
+    font-size: 9px;
+    color: var(--muted);
+    padding: 0 16px 10px;
+    line-height: 1.5;
+  }
+
+  .empty-hint {
+    font-size: 10px;
+    color: var(--muted);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">JOBS<span>.</span>FILTER</div>
+  <div class="stats">
+    <span class="s-shown" id="stat-shown">— shown</span><br>
+    <span class="s-hidden" id="stat-hidden">— hidden</span>
+  </div>
+</div>
+
+<!-- NEGATIVE FILTER -->
+<div class="section">
+  <div class="section-label neg"><div class="dot neg"></div> HIDE if title contains</div>
+  <div class="tags" id="negative-tags"><span class="empty-hint">none</span></div>
+  <div class="input-row">
+    <input type="text" id="negative-input" placeholder="e.g. Senior, Manager…" />
+    <button class="add-btn neg" id="negative-add">ADD</button>
+  </div>
+</div>
+
+<!-- POSITIVE FILTER -->
+<div class="section">
+  <div class="section-label pos"><div class="dot pos"></div> SHOW only if title contains</div>
+  <div class="tags" id="positive-tags"><span class="empty-hint">none</span></div>
+  <div class="input-row">
+    <input type="text" id="positive-input" placeholder="e.g. DevOps, Junior…" />
+    <button class="add-btn pos" id="positive-add">ADD</button>
+  </div>
+</div>
+
+<div class="hint">Filters match card titles. Both can be active at once.<br>Positive filter = whitelist (only matching show). Negative = blacklist (matching hide).</div>
+
+<div class="footer">
+  <button class="clear-btn" id="clear-all">CLEAR ALL</button>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>

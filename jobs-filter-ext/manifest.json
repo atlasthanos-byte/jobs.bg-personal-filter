@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Jobs.bg Filter",
+  "version": "1.2",
+  "description": "Filter job cards by title keywords on jobs.bg",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["https://www.jobs.bg/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.jobs.bg/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
