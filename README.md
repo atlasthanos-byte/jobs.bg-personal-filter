@@ -66,7 +66,7 @@ When applied on the main page of jobs.bg, the extension starts filtering job lis
 4. Choose whether to prioritize positive filters with the "Prioritize Positive" checkbox.
 5. The extension automatically applies the filters.
 
-![Screenshot](screenshot.png)
+
 
 ## License
 
