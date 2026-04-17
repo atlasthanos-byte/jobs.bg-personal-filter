@@ -1,4 +1,5 @@
 let filters = { positive: [], negative: [] };
+let prioritizePositive = false;
 
 function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -53,17 +54,17 @@ function addWord(type) {
  }
 
 function sendToPage() {
-   console.log('Sending to page, filters:', filters);
-   chrome.storage.local.set({ jobFilters: filters }, () => {
-     console.log('Storage set completed');
-   });
-   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-     if (!tabs[0]) {
-       console.log('No active tab found');
-       return;
-     }
-     console.log('Sending message to tab:', tabs[0].id);
-     chrome.tabs.sendMessage(tabs[0].id, { type: 'UPDATE_FILTERS', filters }, () => {
+    console.log('Sending to page, filters:', filters, 'prioritizePositive:', prioritizePositive);
+    chrome.storage.local.set({ jobFilters: filters }, () => {
+      console.log('Storage set completed');
+    });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs[0]) {
+        console.log('No active tab found');
+        return;
+      }
+      console.log('Sending message to tab:', tabs[0].id);
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'UPDATE_FILTERS', filters, prioritizePositive }, () => {
        if (chrome.runtime.lastError) {
          console.log('Message failed, injecting content script:', chrome.runtime.lastError);
          // Content script not ready yet, inject it then retry
@@ -71,7 +72,7 @@ function sendToPage() {
            { target: { tabId: tabs[0].id }, files: ['content.js'] },
            () => {
              setTimeout(() => {
-               chrome.tabs.sendMessage(tabs[0].id, { type: 'UPDATE_FILTERS', filters }, () => {
+               chrome.tabs.sendMessage(tabs[0].id, { type: 'UPDATE_FILTERS', filters, prioritizePositive }, () => {
                  if (chrome.runtime.lastError) {
                    console.log('Retry message failed:', chrome.runtime.lastError);
                  } else {
@@ -95,9 +96,32 @@ function updateStats(shown, hidden) {
   if (h) h.textContent = hidden + ' hidden';
 }
 
+function loadSettings() {
+  chrome.storage.local.get(['jobFilters', 'prioritizePositive'], (result) => {
+    console.log('Popup storage get result:', result);
+    if (result.jobFilters) {
+      filters = result.jobFilters;
+    }
+    if (result.prioritizePositive !== undefined) {
+      prioritizePositive = result.prioritizePositive;
+    }
+    document.getElementById('prioritize-positive').checked = prioritizePositive;
+    renderTags('positive');
+    renderTags('negative');
+  });
+}
+
+document.getElementById('prioritize-positive').addEventListener('change', (e) => {
+  prioritizePositive = e.target.checked;
+  chrome.storage.local.set({ prioritizePositive });
+  sendToPage();
+});
+
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === 'STATS') updateStats(msg.shown, msg.hidden);
 });
+
+loadSettings();
 
 document.addEventListener('DOMContentLoaded', () => {
    console.log('Popup loaded');
